@@ -26,3 +26,9 @@ This tools consists of 3 steps:
 1. Receiving instructions on which websites to download from the user using command line arguments
 2. Downloading these websites to the local file system
 3. Processing the received HTML files to extract metadata
+
+### Dependencies
+#### Typescript 
+This project depends on Typescript for type checking, auto-complete and, obviously, the type system itself.
+The version is soft-pinned to `~5.3.0` in `package.json`, even though our lockfile ensures that everyone receives the same version. The pinning is for documentation purposes to make sure, that everyone knows which version, and which features of Typescript are availble.
+It also prevents surprises when running update commands like `bun update` as these update to the latest version in the range. Due do Typescript not practicing Semver, this could introduce issues, when the behavior of the compiler changes in unexpected ways.
