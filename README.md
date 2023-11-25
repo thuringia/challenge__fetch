@@ -4,6 +4,8 @@ This tool allows you to download web sites, like `curl` or `wget` but using only
 
 To install dependencies:
 
+[Install Bun](https://bun.sh/docs/installation) if you don't have it installed, then run:
+
 ```bash
 bun install
 ```
@@ -15,6 +17,19 @@ bun run index.ts
 ```
 
 This project was created using `bun init` in bun v1.0.14. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+
+## Run the tool
+To compile the tool run:
+```bash
+bun install
+bun run compile
+```
+you will find a binary `fetch` now in your project directory.
+
+```bash
+fetch github.com apple.com
+```
+will download these 2 websites to the local directory.
 
 ## Design
 
