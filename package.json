@@ -2,6 +2,9 @@
   "name": "fetcher",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "compile": "bun build ./index.ts --compile --outfile fetch"
+  },
   "devDependencies": {
     "bun-types": "latest"
   },
