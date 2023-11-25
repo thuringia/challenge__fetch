@@ -1,5 +1,6 @@
 # project output
 fetch
+*.html
 
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 

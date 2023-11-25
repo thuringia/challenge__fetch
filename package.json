@@ -6,7 +6,8 @@
     "compile": "bun build ./index.ts --compile --outfile fetch"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "prettier": "^3.1.0"
   },
   "peerDependencies": {
     "typescript": "~5.3.0"
