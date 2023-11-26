@@ -53,6 +53,22 @@ Fetching the following websites: x://
 Failed to fetch undefined: protocol must be http: or https:
 ```
 
+### Show metadata about websites
+
+If you pass the flag `--metadata` to `fetch`, you will receive a number of statistics after the site was fetched:
+
+```bash
+╰─ bun index.ts --metadata github.com
+Fetching the following websites: github.com
+Successfully fetched https://github.com/
+Saved https://github.com/ to github.com.html
+site: https://github.com/
+last_fetch: 11/26/2023, 11:41:59 AM
+```
+
+`last_fetch` uses the `lastModified` date of the HTML file, that way we do not have to track this value in a separate file or other data store. However, it will be unreliable if you modify files outside of `fetch`, e.g. with you editor, or the terminal.
+The current assumption is, that this is an acceptable tradeoff, that keeps `fetch` accurate enough but also does not introduce more complexity than needed. It is fairly easy to extend `fetch` with data persistence using the built-in [`bun:sqlite`](https://bun.sh/docs/api/sqlite) module
+
 ## Design
 
 This project uses the [Bun](https://bun.sh) runtime. Compared to Node.js, this runtime uses the JSC Javascript engine from WebKit/Safari, not V8. It is similar in goals and features to the [Deno](https://deno.com) runtime, however it provides much better compatibility with normal Node.js libraries and packaging concepts. 
