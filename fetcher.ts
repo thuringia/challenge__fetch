@@ -101,6 +101,8 @@ const getLatestFetch = (page: Response, metrics: Metrics) => {
 
 export const fetchWebsites = async (pages: string[], showMetadata: boolean) => {
   console.info("Fetching the following websites:", pages.join(", "));
+  console.info("-----");
+
   // fetch the websites and collect possible errors
   const websites = await Promise.allSettled(
     parseUrls(pages).map((url) => fetch(url)),
@@ -124,6 +126,7 @@ export const fetchWebsites = async (pages: string[], showMetadata: boolean) => {
           await Bun.write(filename, page);
           printPageMetadata(page, metrics);
           console.info(`Saved ${website.value.url} to ${filename}`);
+          console.info("-----");
         }
         break;
 
