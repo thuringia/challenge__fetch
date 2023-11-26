@@ -3,7 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "compile": "bun build ./index.ts --compile --outfile fetch"
+    "compile": "bun build ./index.ts --compile --outfile fetch",
+    "fmt": "prettier --write ."
   },
   "devDependencies": {
     "bun-types": "latest",
