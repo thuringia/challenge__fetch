@@ -1,3 +1,5 @@
+import { startServer } from "./server";
+
 type Metrics = Map<"num_links" | "images" | "last_fetch", number>;
 
 const getFilename = (r: Response) => `${new URL(r.url).hostname}.html`;
@@ -28,14 +30,14 @@ const collectPageMetadata = (page: Response, metrics: Map<string, number>) => {
   rewriter
     .on("a", {
       element() {
-          const count = metrics.get("num_links") || 0;
-          metrics.set("num_links", count + 1);
-        },
+        const count = metrics.get("num_links") || 0;
+        metrics.set("num_links", count + 1);
+      },
     })
     .on("img", {
-        element() {
-            const count = metrics.get("images") || 0;
-            metrics.set("images", count + 1);
+      element() {
+        const count = metrics.get("images") || 0;
+        metrics.set("images", count + 1);
       },
     });
 
@@ -66,22 +68,37 @@ const printPageMetadata = (page: Response, metrics: Metrics) => {
   );
 };
 
-// pass user arguments to the program
-// arg 1 = path to bun binary
-// arg 2 = path to the current file
-// we will ignore these using destructuring
-const [, , metadata, ...argv] = Bun.argv;
+/**
+ * Parse the user arguments
+ *
+ * If the user passes `--metadata` as argument,
+ * we will show metadata about the fetch.
+ *
+ * If the user passes `--server` as  argument,
+ * we will start a HTTP server.
+ */
+const parseArguments = () => {
+  // pass user arguments to the program
+  // arg 1 = path to bun binary
+  // arg 2 = path to the current file
+  // we will ignore these using destructuring
+  const [, , flag1, flag2, ...argv] = Bun.argv;
 
-// detect if we should show metadata about the fetch
-const showMetadata = metadata === "--metadata";
+  // detect if we should show metadata, or start a server
+  const showMetadata = [flag1, flag2].includes("--metadata");
+  const startServer = [flag1, flag2].includes("--server");
 
-// if we should not show metadata, use the original arguments, else the remaining arguments
-const args = showMetadata ? argv : [metadata, ...argv];
+  // if we should not show metadata, use the original arguments, else the remaining arguments
+  const pages = [...[flag1, flag2].filter((x) => !x.startsWith("--")), ...argv];
 
-console.info("Fetching the following websites:", args.join(", "));
+  return { showMetadata, startServer, pages };
+};
+
+const args = parseArguments();
+console.info("Fetching the following websites:", args.pages.join(", "));
 
 // prepare URLs
-const urls = args.map((url) => {
+const urls = args.pages.map((url) => {
   // if the user provided a valid URL, use it
   try {
     return new URL(url);
@@ -107,7 +124,7 @@ for (const website of websites) {
     case "fulfilled":
       console.info(`Successfully fetched ${website.value.url}`);
       const filename = getFilename(website.value);
-      if (showMetadata) {
+      if (args.showMetadata) {
         const metrics: Metrics = new Map([
           ["num_links", 0],
           ["images", 0],
@@ -128,4 +145,8 @@ for (const website of websites) {
       );
       break;
   }
+}
+
+if (args.startServer) {
+  startServer();
 }

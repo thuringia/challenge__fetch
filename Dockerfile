@@ -2,7 +2,7 @@ FROM oven/bun:latest
 
 COPY package.json ./
 COPY bun.lockb ./
-COPY index.ts ./
+COPY *.ts ./
 
 RUN bun install
 
