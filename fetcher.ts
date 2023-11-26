@@ -1,3 +1,5 @@
+type Metrics = Record<"num_links" | "images" | "last_fetch", number>;
+
 /**
  * Parses the provided URLs into URL objects.
  *
@@ -29,25 +31,23 @@ export const parseUrls = (urls: string[]) =>
  * Due to the spec of HTMLRewriter,
  * we need to return a Response object even though we are not modifying the response.
  * We will store the metrics in the function parameter, relying on the fact that
- * Maps are passed by reference in JavaScript.
+ * objects are passed by reference in JavaScript.
  *
  * This makes this function impure, but it is a tradeoff we are willing to make,
  * to leverage the power of HTMLRewriter as a fully compliant HTML parser.
  */
-const collectPageMetadata = (page: Response, metrics: Map<string, number>) => {
+const collectPageMetadata = (page: Response, metrics: Metrics) => {
   const rewriter = new HTMLRewriter();
 
   rewriter
     .on("a", {
       element() {
-        const count = metrics.get("num_links") || 0;
-        metrics.set("num_links", count + 1);
+        metrics.num_links++;
       },
     })
     .on("img", {
       element() {
-        const count = metrics.get("images") || 0;
-        metrics.set("images", count + 1);
+        metrics.images++;
       },
     });
 
@@ -63,31 +63,40 @@ const collectPageMetadata = (page: Response, metrics: Map<string, number>) => {
  *   last_fetch: Tue Mar 16 2021 15:46 UTC
  */
 const printPageMetadata = (page: Response, metrics: Metrics) => {
-  // check for last fetch, if we dont have it, set it to -1
-  const lastFetch = metrics.get("last_fetch") || -1;
-
   // print the metadata
   // console.table currently doest not work in Bun, so we use console.info
   console.info(`site: ${page.url}`);
-  console.info(`num_links: ${metrics.get("num_links")}`);
-  console.info(`images: ${metrics.get("images")}`);
+  console.info(`num_links: ${metrics.num_links}`);
+  console.info(`images: ${metrics.images}`);
   console.info(
     `last_fetch: ${
-      lastFetch !== -1 ? new Date(lastFetch).toLocaleString() : "never"
+      metrics.last_fetch !== -1
+        ? new Date(metrics.last_fetch).toLocaleString()
+        : "never"
     }`,
   );
 };
 
-type Metrics = Map<"num_links" | "images" | "last_fetch", number>;
-
+/**
+ * Get the filename for a Response object
+ *
+ * @example
+ *   getFilename(new Response("Hello, world!")) // => "example.com.html"
+ */
 const getFilename = (r: Response) => `${new URL(r.url).hostname}.html`;
 
+/**
+ * Get the timestamp of the latest fetch
+ *
+ * @example
+ *   getLatestFetch(new Response("Hello, world!")) // => 1615892800000
+ */
 const getLatestFetch = (page: Response, metrics: Metrics) => {
   // check if the file already exists
   const file = Bun.file(getFilename(page));
 
   // if the file does not exist, we will show a message
-  metrics.set("last_fetch", file.lastModified);
+  metrics.last_fetch = file.lastModified;
 };
 
 export const fetchWebsites = async (pages: string[], showMetadata: boolean) => {
@@ -104,11 +113,11 @@ export const fetchWebsites = async (pages: string[], showMetadata: boolean) => {
         console.info(`Successfully fetched ${website.value.url}`);
         const filename = getFilename(website.value);
         if (showMetadata) {
-          const metrics: Metrics = new Map([
-            ["num_links", 0],
-            ["images", 0],
-            ["last_fetch", 0],
-          ]);
+          const metrics: Metrics = {
+            num_links: 0,
+            images: 0,
+            last_fetch: 0,
+          };
           const page = collectPageMetadata(website.value, metrics);
           getLatestFetch(page, metrics);
           // consume the response, thereby running the transform to collect the metrics
