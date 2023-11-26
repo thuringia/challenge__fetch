@@ -26,10 +26,32 @@ bun run compile
 ```
 you will find a binary `fetch` now in your project directory.
 
+### Fetching websites
+
 ```bash
 fetch github.com apple.com
 ```
-will download these 2 websites to the local directory.
+will download these 2 websites to the local directory as `github-.com.html` and `apple.com.html`.
+You can pass any valid `URL` string, including parameters. If you leave out the protocol, e.g. `https://` we will prepend your input with `https://`. Should there be an error in your URL, you will receive a message like this:
+
+```bash
+bun index.ts "?auth=123"
+Fetching the following websites: ?auth=123
+15 |     // if not, try to prepend the protocol
+16 |     try {
+17 |       return new URL(`https://${url}`);
+18 |     } catch (error) {
+19 |       // if that fails, throw an error
+20 |       throw new Error(
+                ^
+error: ?auth=123 is not a valid URL, and could not be expanded into one. Please check and try again.
+```
+If you provide a valid URL but the native `fetch` function cannot handle it, you will be shown the relevant message:
+```bash
+bun index.ts x://
+Fetching the following websites: x://
+Failed to fetch undefined: protocol must be http: or https:
+```
 
 ## Design
 
