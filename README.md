@@ -18,6 +18,22 @@ bun run index.ts
 
 This project was created using `bun init` in bun v1.0.14. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
 
+## Build with Docker
+To build the tool inside a container as a clean environment run:
+```bash
+# build the image
+docker build -t fetch .
+ 
+# run container to get assetts
+docker run -d --name fetch-build fetch 
+
+# extract the binary
+docker cp fetch-build:/home/bun/app/fetch .
+
+# stop container
+docker stop fetch-build
+```
+
 ## Run the tool
 To compile the tool run:
 ```bash
