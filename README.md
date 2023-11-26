@@ -97,7 +97,7 @@ The current assumption is, that this is an acceptable tradeoff, that keeps `fetc
 
 This project uses the [Bun](https://bun.sh) runtime. Compared to Node.js, this runtime uses the JSC Javascript engine from WebKit/Safari, not V8. It is similar in goals and features to the [Deno](https://deno.com) runtime, however it provides much better compatibility with normal Node.js libraries and packaging concepts.
 
-For this project Bun is ideal, as it provides a complete system from built-in Typescript support to bundling and creating [standalone binaries](https://bun.sh/docs/bundler/executables).
+For this project Bun is ideal, as it provides a complete system from built-in Typescript support to bundling and creating [standalone binaries](https://bun.sh/docs/bundler/executables). It also allows us to build the tools without needing additional dependencies, as it ships native `fetch` for a much simpler HTTP client API, includes a very robust HTTP server API and more.
 
 This tools consists of 3 steps:
 
@@ -116,3 +116,12 @@ It also prevents surprises when running update commands like `bun update` as the
 #### Prettier
 
 Prettier is not a hard dependency, but provided as a convenience using the script `bun run fmt`.
+
+### Node.js compatibilty
+
+To run this project on Node some adjustments need to be made:
+
+- usage of Bun file I/O (`Bun.file/Bun.write`) needs to be replaced with the `node:fs` module. This module is provided by Bun as well, however it is slower as it focusses on compatibility with the Node.js ecosystem
+- usage of `Bun.serve` for the HTTP server needs to be replaced by a library like [Hono](https://hono.dev). Hono supports Bun as well, so it provides a very nice abstration, however it is slower than the native `Bun.serve` API
+- usage on `Bun.glob` needs to be replaced with a library like [fast-glob](https://github.com/mrmlnc/fast-glob) or [micromatch](https://github.com/micromatch/micromatch). This is similar to the usage of Hono, you can provide a clean abstraction of JS runtimes here by sacrficing performance. Glob libraries also often are part of CVEs, so this introduces an additional maintenance issue.
+- usage of `HTMLRewriter` needs to be polyfilled using [`worker-tools/html-rewriter`](https://github.com/worker-tools/html-rewriter)
